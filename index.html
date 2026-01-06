@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Le Menu Divin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #0f0f0f;
+            --text-main: #e0e0e0;
+            --text-muted: #666;
+            --accent: #d4af37; /* Приглушенное золото */
+            --paper-white: #fdfbf7;
+            --ink-black: #1a1a1a;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            opacity: 0;
+            animation: fadeIn 1.5s ease forwards;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            margin: 0;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* MENU GRID */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .menu-item {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        /* Staggered animation for items */
+        .menu-item:nth-child(1) { animation-delay: 0.2s; }
+        .menu-item:nth-child(2) { animation-delay: 0.4s; }
+        .menu-item:nth-child(3) { animation-delay: 0.6s; }
+        .menu-item:nth-child(4) { animation-delay: 0.8s; }
+        .menu-item:nth-child(5) { animation-delay: 1.0s; }
+
+        .menu-item:hover, .menu-item:active {
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+            background: #141414;
+        }
+
+        .item-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            margin: 0 0 5px 0;
+            color: var(--text-main);
+        }
+
+        .item-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* RECEIPT OVERLAY (The "Cheque") */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .receipt {
+            background: var(--paper-white);
+            color: var(--ink-black);
+            width: 300px;
+            padding: 30px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transform: translateY(100px);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .overlay.active .receipt {
+            transform: translateY(0);
+        }
+
+        /* Receipt styling details */
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #aaa;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .receipt-logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .receipt-body {
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .receipt-total {
+            border-top: 1px dashed #aaa;
+            margin-top: 15px;
+            padding-top: 10px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .receipt-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #555;
+        }
+
+        .close-btn {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--ink-black);
+            color: var(--paper-white);
+            border: none;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Divine Kitchen</h1>
+        <div class="subtitle">EST. Eternity &bull; Tokyo</div>
+        <div style="margin-top: 20px; font-size: 0.9rem; font-style: italic; color: #888;">
+            "Шеф ожидает вашего заказа, мсье."
+        </div>
+    </header>
+
+    <div class="menu-grid">
+        <div class="menu-item" onclick="order('passion')">
+            <div class="item-title">L'Électricité</div>
+            <div class="item-desc">Животный ток. Дрожь. Резонанс. <br>Подается горячим.</div>
+        </div>
+
+        <div class="menu-item" onclick="order('calm')">
+            <div class="item-title">Le Calme Absolu</div>
+            <div class="item-desc">Тихая уверенность. Ясность. <br>Без лишнего шума.</div>
+        </div>
+
+        <div class="menu-item" onclick="order('connection')">
+            <div class="item-title">La Connexion</div>
+            <div class="item-desc">Быть нужным. Глубина. <br>Исчезновение границ.</div>
+        </div>
+
+        <div class="menu-item" onclick="order('flow')">
+            <div class="item-title">Le Flux</div>
+            <div class="item-desc">Легкость ветра. Игра. <br>Состояние полета.</div>
+        </div>
+
+        <div class="menu-item" onclick="order('surprise')">
+            <div class="item-title">Choix du Chef</div>
+            <div class="item-desc">"Удивите меня". <br>Полное доверие кухне.</div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="receipt">
+            <div class="receipt-header">
+                <div class="receipt-logo">DIVINE KITCHEN</div>
+                <div style="font-size: 0.7rem; margin-top: 5px;">TOKYO BRANCH</div>
+                <div style="font-size: 0.7rem;" id="date-time"></div>
+            </div>
+
+            <div class="receipt-body" id="receipt-content">
+                </div>
+
+            <div class="receipt-total">
+                ОПЛАЧЕНО ВНИМАНИЕМ
+            </div>
+
+            <div class="receipt-footer">
+                <p>Примечание для Логиста:<br>Декорации выбрать по усмотрению.</p>
+                <p>***</p>
+                <p>ПРИЯТНОГО АППЕТИТА</p>
+            </div>
+
+            <button class="close-btn" onclick="closeReceipt()">ПРИНЯТЬ ЗАКАЗ</button>
+        </div>
+    </div>
+
+    <script>
+        // Data for the menu
+        const menuData = {
+            passion: {
+                name: "L'ÉLECTRICITÉ",
+                ingredients: [
+                    { name: "Тотальный резонанс", qty: "100%" },
+                    { name: "Дрожь в коленях", qty: "1 порц." },
+                    { name: "Адреналин", qty: "max" }
+                ]
+            },
+            calm: {
+                name: "LE CALME",
+                ingredients: [
+                    { name: "Внутренняя тишина", qty: "∞" },
+                    { name: "Отсутствие суеты", qty: "100%" },
+                    { name: "Ясный взгляд", qty: "1 шт." }
+                ]
+            },
+            connection: {
+                name: "LA CONNEXION",
+                ingredients: [
+                    { name: "Чувство нужности", qty: "100%" },
+                    { name: "Тепло принятия", qty: "High" },
+                    { name: "Смысл", qty: "Deep" }
+                ]
+            },
+            flow: {
+                name: "LE FLUX",
+                ingredients: [
+                    { name: "Легкость", qty: "Air" },
+                    { name: "Синхроничность", qty: "100%" },
+                    { name: "Удача", qty: "Bonus" }
+                ]
+            },
+            surprise: {
+                name: "CHEF'S SPECIAL",
+                ingredients: [
+                    { name: "Неизвестность", qty: "???" },
+                    { name: "Чудо", qty: "1 шт." },
+                    { name: "Инсайт", qty: "Flash" }
+                ]
+            }
+        };
+
+        function order(type) {
+            const data = menuData[type];
+            const contentDiv = document.getElementById('receipt-content');
+            
+            // Generate receipt HTML
+            let html = `<div class="receipt-row" style="margin-bottom:15px; font-weight:bold;"><span>${data.name}</span><span>1</span></div>`;
+            
+            data.ingredients.forEach(ing => {
+                html += `<div class="receipt-row"><span>- ${ing.name}</span><span>${ing.qty}</span></div>`;
+            });
+
+            contentDiv.innerHTML = html;
+
+            // Set Date
+            const now = new Date();
+            document.getElementById('date-time').innerText = now.toLocaleString('ru-RU', { hour: '2-digit', minute:'2-digit', day:'numeric', month:'short' });
+
+            // Show Overlay
+            document.getElementById('overlay').classList.add('active');
+            
+            // Haptic feedback (if on mobile)
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function closeReceipt() {
+            document.getElementById('overlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
